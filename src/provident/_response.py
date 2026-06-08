@@ -15,6 +15,8 @@ from provident.errors import (
 
 
 def unwrap_response(response: httpx.Response) -> Any:
+    if not response.text or not response.text.strip():
+        return None
     data = response.json()
     if not isinstance(data, dict) or "d" not in data:
         return data

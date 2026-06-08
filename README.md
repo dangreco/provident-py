@@ -127,6 +127,10 @@ All exceptions inherit from `ProvidentError`.
 - [httpx](https://www.python-httpx.org/)
 - [pydantic](https://docs.pydantic.dev/) v2
 
+## Support
+
+If this project saved you some time, consider [buying me a beer 🍺](https://buymeacoffee.com/dangreco)!
+
 ## License
 
 [MIT](https://github.com/dangreco/provident-py/blob/main/LICENSE)

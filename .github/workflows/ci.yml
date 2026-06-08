@@ -8,9 +8,22 @@ on:
     branches:
       - main
 jobs:
+  lint-pr:
+    name: Lint PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          echo "$PR_TITLE" | grep -qE '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\(.+\))?!?: .{1,100}' \
+            || { echo "ERROR: PR title must follow Conventional Commits: type(scope)!: description"; echo "       Got: $PR_TITLE"; exit 1; }
+
   check:
     name: Check
     runs-on: ubuntu-latest
+    needs:
+      - lint-pr
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

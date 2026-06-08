@@ -22,12 +22,17 @@ class AsyncProvidentClient:
 
     def __init__(self, config: ProvidentConfig) -> None:
         self._config = config
+        transport = (
+            config.transport
+            if isinstance(config.transport, httpx.AsyncBaseTransport)
+            else None
+        )
         merged_headers = {**self._DEFAULT_HEADERS, **config.headers}
         self._client = httpx.AsyncClient(
             base_url=config.base_url,
             timeout=config.timeout,
             headers=merged_headers,
-            transport=config.transport,
+            transport=transport,
             follow_redirects=config.follow_redirects,
         )
 

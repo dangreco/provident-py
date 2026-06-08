@@ -31,7 +31,7 @@ tasks:
     desc: Check for linting/formatting errors
     silent: true
     cmds:
-      - ty check --error-on-warning .
+      - uv run ty check --error-on-warning .
       - ruff check .
       - ruff format --check .
 

@@ -418,7 +418,7 @@ class TestConfig:
     def test_frozen(self, base_url: str) -> None:
         config = ProvidentConfig(base_url=base_url)
         with pytest.raises(AttributeError):
-            config.base_url = "https://other.example"  # type: ignore[misc]
+            config.base_url = "https://other.example"  # type: ignore[misc]  # ty: ignore[invalid-assignment]
 
     def test_default_timeout(self, base_url: str) -> None:
         config = ProvidentConfig(base_url=base_url)

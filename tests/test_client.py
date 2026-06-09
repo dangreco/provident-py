@@ -18,7 +18,11 @@ from provident.errors import (
     ProvidentServerError,
 )
 from provident.models import ChartDataResult, LoginResult, ProvidentModel
-from tests._helpers import _make_chart_data_transport, _make_login_transport
+from tests._helpers import (
+    _make_chart_data_transport,
+    _make_empty_chart_data_transport,
+    _make_login_transport,
+)
 
 
 class _SampleResult(ProvidentModel):
@@ -376,6 +380,17 @@ class TestClientGetChartData:
             )
             assert result.data == []
 
+    def test_empty_api_response(self, base_url: str) -> None:
+        transport = _make_empty_chart_data_transport()
+        config = ProvidentConfig(base_url=base_url, transport=transport)
+        with ProvidentClient(config) as client:
+            result = client.get_chart_data(
+                MeterType.COLD_WATER, Period.DAY, date(2026, 1, 1)
+            )
+            assert result.error is False
+            assert result.data == []
+            assert result.units is None
+
 
 class TestEnums:
     def test_meter_type_values(self) -> None:
@@ -412,6 +427,18 @@ class TestChartDataResult:
         result = ChartDataResult.model_validate({"error": True})
         assert result.units is None
         assert result.data == []
+
+    def test_empty_dict_uses_defaults(self) -> None:
+        result = ChartDataResult.model_validate({})
+        assert result.error is False
+        assert result.units is None
+        assert result.data == []
+
+    def test_default_error_field(self) -> None:
+        result = ChartDataResult.model_validate({"units": "kWh", "graphData": [1.0]})
+        assert result.error is False
+        assert result.units == "kWh"
+        assert result.data == [1.0]
 
 
 class TestConfig:

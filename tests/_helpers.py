@@ -61,3 +61,16 @@ def _make_chart_data_transport(
         )
 
     return httpx.MockTransport(handler)
+
+
+def _make_empty_chart_data_transport() -> httpx.MockTransport:
+    body = json.dumps({"d": ""})
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            content=body,
+            headers={"content-type": "application/json"},
+        )
+
+    return httpx.MockTransport(handler)

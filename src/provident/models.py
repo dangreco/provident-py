@@ -17,6 +17,6 @@ class LoginResult(ProvidentModel):
 class ChartDataResult(ProvidentModel):
     model_config = {"frozen": True, "populate_by_name": True}
 
-    error: bool
+    error: bool = False
     units: str | None = None
     data: list[float] = Field(alias="graphData", default_factory=list)

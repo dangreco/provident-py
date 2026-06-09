@@ -2,6 +2,7 @@
 /.pre-commit-config.yaml
 /.envrc
 /.direnv
+sync-ha.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

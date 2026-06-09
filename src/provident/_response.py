@@ -22,6 +22,8 @@ def unwrap_response(response: httpx.Response) -> Any:
         return data
     inner = data["d"]
     if isinstance(inner, str):
+        if not inner or not inner.strip():
+            return {}
         return json.loads(inner)
     return inner
 

@@ -61,6 +61,26 @@ class TestUnwrapResponse:
         result = unwrap_response(response)
         assert result == [1, 2, 3]
 
+    def test_empty_inner_string(self) -> None:
+        response = _make_response(json_data={"d": ""})
+        result = unwrap_response(response)
+        assert result == {}
+
+    def test_whitespace_only_inner_string(self) -> None:
+        response = _make_response(json_data={"d": "   "})
+        result = unwrap_response(response)
+        assert result == {}
+
+    def test_empty_response_body(self) -> None:
+        response = _make_response(text="")
+        result = unwrap_response(response)
+        assert result is None
+
+    def test_whitespace_only_response_body(self) -> None:
+        response = _make_response(text="   ")
+        result = unwrap_response(response)
+        assert result is None
+
     def test_non_dict_response(self) -> None:
         response = _make_response(json_data=[1, 2, 3])
         result = unwrap_response(response)

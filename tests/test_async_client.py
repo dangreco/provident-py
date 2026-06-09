@@ -14,7 +14,11 @@ from provident.errors import (
     ProvidentServerError,
 )
 from provident.models import LoginResult, ProvidentModel
-from tests._helpers import _make_chart_data_transport, _make_login_transport
+from tests._helpers import (
+    _make_chart_data_transport,
+    _make_empty_chart_data_transport,
+    _make_login_transport,
+)
 
 
 class _SampleResult(ProvidentModel):
@@ -229,3 +233,15 @@ class TestAsyncClientGetChartData:
                 MeterType.ELECTRICITY, Period.MONTH, date(2026, 6, 1)
             )
             assert result.error is True
+
+    @pytest.mark.asyncio
+    async def test_empty_api_response(self, base_url: str) -> None:
+        transport = _make_empty_chart_data_transport()
+        config = ProvidentConfig(base_url=base_url, transport=transport)
+        async with AsyncProvidentClient(config) as client:
+            result = await client.get_chart_data(
+                MeterType.COLD_WATER, Period.DAY, date(2026, 1, 1)
+            )
+            assert result.error is False
+            assert result.data == []
+            assert result.units is None

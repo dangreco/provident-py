@@ -81,7 +81,12 @@ async with AsyncProvidentClient(config) as client:
 
 | Method | Returns | Description |
 |---|---|---|
+| `get_utilities()` | `list[str]` | List the utility names available on the account, e.g. `["Cold Water", "Electricity", "Hot Water"]`. |
 | `get_chart_data(meter_type, period, start)` | `ChartDataResult` | Fetch usage data for a meter type and time period. |
+
+`meter_type` accepts a `MeterType` or a plain string, so names returned by
+`get_utilities()` can be passed straight back in — useful for accounts whose
+utilities fall outside `MeterType`.
 
 ### Enums
 
@@ -107,6 +112,10 @@ async with AsyncProvidentClient(config) as client:
 |---|---|
 | `LoginResult` | `success: bool`, `msg: str \| None` |
 | `ChartDataResult` | `error: bool`, `units: str \| None`, `data: list[float]` |
+
+`ChartDataResult.error` mirrors an upstream flag and is independent of whether
+`data` is populated — the API is observed returning `error: true` alongside a
+complete dataset. Check `data` to decide whether a response is usable.
 
 ### Errors
 

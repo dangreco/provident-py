@@ -129,8 +129,16 @@ class AsyncProvidentClient:
         result = await self._call("GET", "/login/LoginService.aspx/CheckLogin")
         return bool(result)
 
+    async def get_utilities(self) -> list[str]:
+        result = await self._call(
+            "POST",
+            "/secure/Dashboard/Default.aspx/GetUtilities",
+            json={},
+        )
+        return [str(utility) for utility in result] if result else []
+
     async def get_chart_data(
-        self, meter_type: MeterType, period: Period, start: date
+        self, meter_type: MeterType | str, period: Period, start: date
     ) -> ChartDataResult:
         return await self._call(
             "POST",

@@ -74,3 +74,33 @@ def _make_empty_chart_data_transport() -> httpx.MockTransport:
         )
 
     return httpx.MockTransport(handler)
+
+
+def _make_utilities_transport(
+    utilities: list[str] | None = None,
+) -> httpx.MockTransport:
+    if utilities is None:
+        utilities = ["Cold Water", "Electricity", "Hot Water"]
+    body = json.dumps({"d": json.dumps(utilities)})
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            content=body,
+            headers={"content-type": "application/json"},
+        )
+
+    return httpx.MockTransport(handler)
+
+
+def _make_empty_utilities_transport() -> httpx.MockTransport:
+    body = json.dumps({"d": ""})
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            content=body,
+            headers={"content-type": "application/json"},
+        )
+
+    return httpx.MockTransport(handler)

@@ -13,7 +13,7 @@ from provident.errors import (
 )
 from provident.models import ChartDataResult, LoginResult, ProvidentModel
 
-__version__ = "0.1.1"
+__version__ = "0.1.4"
 
 __all__ = [
     "AsyncProvidentClient",

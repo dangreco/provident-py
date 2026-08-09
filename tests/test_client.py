@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import date
 
 import httpx
@@ -21,7 +22,9 @@ from provident.models import ChartDataResult, LoginResult, ProvidentModel
 from tests._helpers import (
     _make_chart_data_transport,
     _make_empty_chart_data_transport,
+    _make_empty_utilities_transport,
     _make_login_transport,
+    _make_utilities_transport,
 )
 
 
@@ -390,6 +393,82 @@ class TestClientGetChartData:
             assert result.error is False
             assert result.data == []
             assert result.units is None
+
+    def test_accepts_raw_utility_string(self, base_url: str) -> None:
+        captured: dict[str, object] = {}
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            captured["body"] = json.loads(request.content)
+            return httpx.Response(
+                200,
+                content=json.dumps(
+                    {
+                        "d": json.dumps(
+                            {"error": False, "units": "m3", "graphData": [1.0]}
+                        )
+                    }
+                ),
+                headers={"content-type": "application/json"},
+            )
+
+        config = ProvidentConfig(
+            base_url=base_url, transport=httpx.MockTransport(handler)
+        )
+        with ProvidentClient(config) as client:
+            result = client.get_chart_data("Cold Water", Period.YEAR, date(2026, 1, 1))
+            assert result.data == [1.0]
+            assert captured["body"] == {
+                "utility": "Cold Water",
+                "period": "year",
+                "start": "2026-01-01",
+            }
+
+
+class TestClientGetUtilities:
+    def test_returns_utility_names(self, base_url: str) -> None:
+        transport = _make_utilities_transport()
+        config = ProvidentConfig(base_url=base_url, transport=transport)
+        with ProvidentClient(config) as client:
+            assert client.get_utilities() == ["Cold Water", "Electricity", "Hot Water"]
+
+    def test_names_compare_equal_to_meter_types(self, base_url: str) -> None:
+        transport = _make_utilities_transport()
+        config = ProvidentConfig(base_url=base_url, transport=transport)
+        with ProvidentClient(config) as client:
+            utilities = client.get_utilities()
+            assert MeterType.ELECTRICITY in utilities
+
+    def test_preserves_unknown_utility_names(self, base_url: str) -> None:
+        transport = _make_utilities_transport(["Gas", "Cold Water"])
+        config = ProvidentConfig(base_url=base_url, transport=transport)
+        with ProvidentClient(config) as client:
+            assert client.get_utilities() == ["Gas", "Cold Water"]
+
+    def test_empty_api_response(self, base_url: str) -> None:
+        transport = _make_empty_utilities_transport()
+        config = ProvidentConfig(base_url=base_url, transport=transport)
+        with ProvidentClient(config) as client:
+            assert client.get_utilities() == []
+
+    def test_posts_to_dashboard_endpoint(self, base_url: str) -> None:
+        captured: dict[str, str] = {}
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            captured["method"] = request.method
+            captured["path"] = request.url.path
+            return httpx.Response(
+                200,
+                content=json.dumps({"d": json.dumps(["Electricity"])}),
+                headers={"content-type": "application/json"},
+            )
+
+        config = ProvidentConfig(
+            base_url=base_url, transport=httpx.MockTransport(handler)
+        )
+        with ProvidentClient(config) as client:
+            client.get_utilities()
+        assert captured["method"] == "POST"
+        assert captured["path"] == "/secure/Dashboard/Default.aspx/GetUtilities"
 
 
 class TestEnums:
